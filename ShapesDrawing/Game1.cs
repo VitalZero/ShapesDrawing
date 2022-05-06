@@ -65,7 +65,7 @@ namespace ShapesDrawing
 
             shapes.DrawRectangle(10, 20, 60, 60, 1f, Color.Black);
 
-            shapes.DrawCircle(100, 100, 40, 32, 1f, Color.BurlyWood);
+            shapes.DrawCircleFill(200, 200, 40, 32, Color.BurlyWood);
 
             Vector2[] vertices = new Vector2[4];
 

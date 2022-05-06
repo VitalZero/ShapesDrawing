@@ -295,6 +295,8 @@ namespace VZShapes
 
         public void DrawCircleSlow(float x, float y, float radius, int points, float thickness, Color color)
         {
+            EnsureStarted();
+
             const int minPoints = 3;
             const int maxPoints = 256;
 
@@ -324,6 +326,8 @@ namespace VZShapes
 
         public void DrawCircle(float x, float y, float radius, int points, float thickness, Color color)
         {
+            EnsureStarted();
+
             const int minPoints = 3;
             const int maxPoints = 256;
 
@@ -350,6 +354,52 @@ namespace VZShapes
                 ax = bx;
                 ay = by;
             }
+        }
+
+        public void DrawCircleFill(float x, float y, float radius, int points, Color color)
+        {
+            EnsureStarted();
+
+            const int minPoints = 3;
+            const int maxPoints = 256;
+
+            int shapeVertexCount = Math.Clamp(points, minPoints, maxPoints);
+            int shapeTriangleCount = shapeVertexCount - 2;
+            int shapeIndexCount = shapeTriangleCount * 3;
+
+            EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+            int index = 1;
+
+            for(int i = 0; i < shapeTriangleCount; ++i)
+            {
+                indices[indexCount++] = 0 + vertexCount;
+                indices[indexCount++] = index + vertexCount;
+                indices[indexCount++] = index + 1 + vertexCount;
+
+                index++;
+            }
+
+            float rotation = MathHelper.TwoPi / (float)points; 
+
+            float rSin = (float)Math.Sin(rotation);
+            float rCos = (float)Math.Cos(rotation);
+
+            float ax = radius;
+            float ay = 0f;
+
+            for(int i = 0; i < shapeVertexCount; ++i)
+            {
+                float x1 = ax;
+                float y1 = ay;
+
+                vertices[vertexCount++] = new VertexPositionColor(new Vector3(x1 + x, y1 + y, 0f), color);
+
+                ax = rCos * x1 - rSin * y1;
+                ay = rSin * x1 + rCos * y1;
+            }
+
+            shapeCount++;
         }
 
         public void DrawPolygon(Vector2[] vertices, float thickness, Color color)
