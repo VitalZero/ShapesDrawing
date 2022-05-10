@@ -402,12 +402,55 @@ namespace VZShapes
             shapeCount++;
         }
 
-        public void DrawPolygon(Vector2[] vertices, float thickness, Color color)
+        public void DrawPolygon(Vector2[] vertices, Matrix transform, float thickness, Color color)
         {
+            Vector2 a;
+            Vector2 b;
+
             for (int i = 0; i < vertices.Length; ++i)
             {
-                DrawLine(vertices[i], vertices[(i + 1) % vertices.Length], thickness, color);
+                a = vertices[i];
+                b = vertices[(i + 1) % vertices.Length];
+
+                a = Vector2.Transform(a, transform);
+                b = Vector2.Transform(b, transform);
+
+                DrawLine(a, b, thickness, color);
             }
+        }
+
+        public void DrawPolygonFill(Vector2[] polyVertices, int[] triangleIndices, Matrix transform, Color color)
+        {
+            if (polyVertices is null)
+                throw new ArgumentNullException("vertices");
+
+            if (triangleIndices is null)
+                throw new ArgumentNullException("indices");
+
+            if (polyVertices.Length < 3)
+                throw new ArgumentOutOfRangeException("vertices length");
+
+            if(triangleIndices.Length < 3)
+                throw new ArgumentOutOfRangeException("indices length");
+
+            EnsureStarted();
+            EnsureSpace(polyVertices.Length, triangleIndices.Length);
+
+            for(int i = 0; i < triangleIndices.Length; ++i)
+            {
+                indices[indexCount++] = triangleIndices[i] + vertexCount;
+            }
+
+            for (int i = 0; i < polyVertices.Length; ++i)
+            {
+                Vector2 vertex = polyVertices[i];
+                vertex = Vector2.Transform(vertex, transform);
+
+
+                vertices[vertexCount++] = new VertexPositionColor(new Vector3(vertex.X, vertex.Y, 0f), color);
+            }
+
+            shapeCount++;
         }
     }
 }

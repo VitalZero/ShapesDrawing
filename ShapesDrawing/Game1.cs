@@ -11,12 +11,14 @@ namespace ShapesDrawing
         private SpriteBatch _spriteBatch;
         Screen screen;
         Shapes shapes;
+        float rotation;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            rotation = MathHelper.TwoPi;
         }
 
         protected override void Initialize()
@@ -43,6 +45,8 @@ namespace ShapesDrawing
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            rotation -= 2f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             // TODO: Add your update logic here
             base.Update(gameTime);
         }
@@ -56,25 +60,31 @@ namespace ShapesDrawing
             // TODO: Add your drawing code here
             shapes.Begin();
 
-            shapes.DrawRectangleFill(100, 100, 50, 50, Color.Indigo);
-            shapes.DrawRectangleFill(320-60, 240-60, 50, 50, Color.BlueViolet);
+            Vector2[] vertices = new Vector2[5];
 
-            shapes.DrawLine(new Vector2(10, 10), new Vector2(200, 200), 1f, Color.Black);
-            shapes.DrawLine(new Vector2(50, 50), new Vector2(150, 260), 1f, Color.Black);
+            vertices[0] = new Vector2(0, -10);
+            vertices[1] = new Vector2(10, 10);
+            vertices[2] = new Vector2(3, 3);
+            vertices[3] = new Vector2(-3, 3);
+            vertices[4] = new Vector2(-10, 10);
 
+            int[] triIndices = new int[(vertices.Length - 2) * 3];
 
-            shapes.DrawRectangle(10, 20, 60, 60, 1f, Color.Black);
+            triIndices[0] = 0;
+            triIndices[1] = 1;
+            triIndices[2] = 2;
+            triIndices[3] = 0;
+            triIndices[4] = 2;
+            triIndices[5] = 3;
+            triIndices[6] = 0;
+            triIndices[7] = 3;
+            triIndices[8] = 4;
 
-            shapes.DrawCircleFill(200, 200, 40, 32, Color.BurlyWood);
+            Matrix transform = Matrix.CreateScale(1f) *
+                Matrix.CreateRotationZ(rotation) *
+                Matrix.CreateTranslation(50f, 50f, 1f);
 
-            Vector2[] vertices = new Vector2[4];
-
-            vertices[0] = new Vector2(10, 10);
-            vertices[1] = new Vector2(50, 5);
-            vertices[2] = new Vector2(70, 80);
-            vertices[3] = new Vector2(40, 100);
-
-            shapes.DrawPolygon(vertices, 1f, Color.White);
+            shapes.DrawPolygonFill(vertices, triIndices, transform, Color.White);
 
             shapes.End();
 
